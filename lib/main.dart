@@ -12,15 +12,41 @@ class QuizApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 80, 20, 110),
         body: Center(
-          child: Text(
-            'Learn Flutter the fun way!',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/quiz-logo.png',
+                width: 250,
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'Learn Flutter the fun way!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              TextButton.icon(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.arrow_right_alt,
+                  color: Colors.white,
+                  size: 28,
+                ),
+                label: const Text(
+                  'Start Quiz',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
