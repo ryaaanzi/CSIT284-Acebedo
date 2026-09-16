@@ -2,12 +2,12 @@ import '../models/quiz_question.dart';
 
 const questions = [
   QuizQuestion(
-    text: 'What happens if you change data in a StatelessWidget?',
+    text: 'What flavor do you enjoy most?',
     answers: [
-      'The closest StatefulWidget is updated',
-      'The UI is updated',
-      'Any nested StatefulWidgets are updated',
-      'The UI is not updated',
+      'Sweet (SL)',
+      'Salty (SF) ',
+      'Spicy (SE) ',
+      'Sour (SF) ',
     ],
     correctAnswer: 'The UI is not updated',
   ),

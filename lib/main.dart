@@ -5,12 +5,12 @@ void main() {
   runApp(const QuizApp());
 }
 
-const backgroundTop = Color(0xFF17112F);
-const backgroundBottom = Color(0xFF090716);
-const primaryPurple = Color(0xFF8B5CF6);
-const brightPurple = Color(0xFFA78BFA);
+const backgroundTop = Color.fromARGB(255, 150, 74, 74);
+const backgroundBottom = Color.fromARGB(255, 194, 188, 235);
+const primaryPurple = Color.fromARGB(255, 35, 21, 54);
+const brightPurple = Color.fromARGB(255, 154, 129, 230);
 const cardColor = Color(0xFF211A3A);
-const buttonColor = Color(0xFF2B2248);
+const buttonColor = Color.fromARGB(255, 13, 12, 17);
 
 class QuizApp extends StatelessWidget {
   const QuizApp({super.key});
@@ -77,7 +77,7 @@ class StartScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 38),
                   const Text(
-                    'Flutter Quiz',
+                    'Favorite Food Finder ',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 34,
@@ -87,7 +87,7 @@ class StartScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'Learn Flutter the fun way!',
+                    'Answer three questions and discover a food that matches your preferences.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white70,
