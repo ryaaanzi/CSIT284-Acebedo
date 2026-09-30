@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'data/dummy_expenses.dart';
 import 'models/expense.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const ExpenseTrackerApp());
@@ -14,64 +15,10 @@ class ExpenseTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFF06110B);
-    const surface = Color(0xFF0B1C12);
-    const green = Color(0xFF78FF8A);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Expense Tracker',
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: background,
-        colorScheme: const ColorScheme.dark(
-          primary: green,
-          secondary: green,
-          surface: surface,
-          onPrimary: Color(0xFF06110B),
-          onSecondary: Color(0xFF06110B),
-          onSurface: Colors.white,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: const Color(0xFF102319),
-          labelStyle: const TextStyle(
-            color: Color(0xFF9CB4A2),
-          ),
-          hintStyle: const TextStyle(
-            color: Color(0xFF65796B),
-          ),
-          prefixIconColor: green,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(
-              color: Color(0xFF24422D),
-            ),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(
-              color: Color(0xFF24422D),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: const BorderSide(
-              color: green,
-              width: 1.5,
-            ),
-          ),
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(
-            color: Colors.white,
-          ),
-          bodyMedium: TextStyle(
-            color: Color(0xFFA7B8AC),
-          ),
-        ),
-      ),
+      theme: AppTheme.darkTheme,
       home: const ExpenseTrackerScreen(),
     );
   }
@@ -127,7 +74,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
       case Category.travel:
         return const Color(0xFF6ED8FF);
       case Category.work:
-        return const Color(0xFF78FF8A);
+        return AppTheme.primary;
     }
   }
 
@@ -175,7 +122,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         ),
         action: SnackBarAction(
           label: 'UNDO',
-          textColor: const Color(0xFF78FF8A),
+          textColor: AppTheme.primary,
           onPressed: () {
             setState(() {
               dummyExpenses.insert(removedIndex, expense);
@@ -194,8 +141,6 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
             titleSpacing: 20,
             title: const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,7 +157,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                 Text(
                   'Track it. Spend smarter.',
                   style: TextStyle(
-                    color: Color(0xFF789181),
+                    color: AppTheme.subtleText,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -228,12 +173,11 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                   icon: Container(
                     padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF78FF8A),
+                      color: AppTheme.primary,
                       borderRadius: BorderRadius.circular(13),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF78FF8A)
-                              .withValues(alpha: 0.25),
+                          color: AppTheme.primary.withValues(alpha: 0.25),
                           blurRadius: 16,
                           spreadRadius: 1,
                         ),
@@ -241,7 +185,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                     ),
                     child: const Icon(
                       Icons.add_rounded,
-                      color: Color(0xFF06110B),
+                      color: AppTheme.background,
                     ),
                   ),
                 ),
@@ -280,8 +224,8 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _openAddExpenseSheet,
-            backgroundColor: const Color(0xFF78FF8A),
-            foregroundColor: const Color(0xFF06110B),
+            backgroundColor: AppTheme.primary,
+            foregroundColor: AppTheme.background,
             elevation: 8,
             icon: const Icon(Icons.add_rounded),
             label: const Text(
@@ -303,7 +247,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          color: const Color(0xFF78FF8A).withValues(alpha: 0.18),
+          color: AppTheme.primary.withValues(alpha: 0.18),
         ),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -315,7 +259,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF78FF8A).withValues(alpha: 0.10),
+            color: AppTheme.primary.withValues(alpha: 0.10),
             blurRadius: 30,
             spreadRadius: -5,
           ),
@@ -329,12 +273,12 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               Container(
                 padding: const EdgeInsets.all(9),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF78FF8A).withValues(alpha: 0.13),
+                  color: AppTheme.primary.withValues(alpha: 0.13),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.account_balance_wallet_rounded,
-                  color: Color(0xFF78FF8A),
+                  color: AppTheme.primary,
                   size: 20,
                 ),
               ),
@@ -342,7 +286,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               const Text(
                 'TOTAL SPENDING',
                 style: TextStyle(
-                  color: Color(0xFF83A18D),
+                  color: AppTheme.mutedGreen,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.5,
@@ -386,7 +330,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             const Text(
               'SPENDING BY CATEGORY',
               style: TextStyle(
-                color: Color(0xFF83A18D),
+                color: AppTheme.mutedGreen,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.5,
@@ -542,7 +486,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               Text(
                 '₱${expense.amount.toStringAsFixed(2)}',
                 style: const TextStyle(
-                  color: Color(0xFFB8FFC0),
+                  color: AppTheme.softGreen,
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                 ),
@@ -580,16 +524,16 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: const Color(0xFF78FF8A).withValues(alpha: 0.08),
+                color: AppTheme.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: const Color(0xFF78FF8A).withValues(alpha: 0.15),
+                  color: AppTheme.primary.withValues(alpha: 0.15),
                 ),
               ),
               child: const Icon(
                 Icons.receipt_long_rounded,
                 size: 42,
-                color: Color(0xFF78FF8A),
+                color: AppTheme.primary,
               ),
             ),
             const SizedBox(height: 18),
@@ -606,7 +550,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               'Add your first expense and start tracking where your money goes.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Color(0xFF718579),
+                color: AppTheme.subtleText,
                 height: 1.4,
               ),
             ),
@@ -636,10 +580,10 @@ class GlassCard extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF102319).withValues(alpha: 0.82),
+            color: AppTheme.card.withValues(alpha: 0.82),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: const Color(0xFF78FF8A).withValues(alpha: 0.10),
+              color: AppTheme.primary.withValues(alpha: 0.10),
             ),
           ),
           child: child,
@@ -665,7 +609,7 @@ class _BackgroundGlow extends StatelessWidget {
               height: 280,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: const Color(0xFF35FF62).withValues(alpha: 0.08),
+                color: AppTheme.primary.withValues(alpha: 0.08),
               ),
             ),
           ),
@@ -718,9 +662,9 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF78FF8A),
-              onPrimary: Color(0xFF06110B),
-              surface: Color(0xFF102319),
+              primary: AppTheme.primary,
+              onPrimary: AppTheme.background,
+              surface: AppTheme.card,
               onSurface: Colors.white,
             ),
           ),
@@ -778,7 +722,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
 
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0B1C12),
+        color: AppTheme.surface,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(28),
         ),
@@ -817,7 +761,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
               const Text(
                 'Record where your money went.',
                 style: TextStyle(
-                  color: Color(0xFF718579),
+                  color: AppTheme.subtleText,
                   fontSize: 13,
                 ),
               ),
@@ -877,7 +821,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     child: Text(
                       'Date: ${formatDate(_selectedDate)}',
                       style: const TextStyle(
-                        color: Color(0xFFA7B8AC),
+                        color: AppTheme.secondaryText,
                         fontSize: 14,
                       ),
                     ),
@@ -887,7 +831,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     icon: const Icon(Icons.calendar_month_rounded),
                     label: const Text('Date'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF78FF8A),
+                      foregroundColor: AppTheme.primary,
                       side: const BorderSide(
                         color: Color(0xFF34503D),
                       ),
@@ -908,8 +852,8 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
                     ),
                   ),
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF78FF8A),
-                    foregroundColor: const Color(0xFF06110B),
+                    backgroundColor: AppTheme.primary,
+                    foregroundColor: AppTheme.background,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
