@@ -1,4 +1,4 @@
-# csit284_acebedo
+# expense_tracker
 
 A new Flutter project.
 
