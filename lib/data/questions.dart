@@ -3,42 +3,68 @@ import '../models/quiz_question.dart';
 const questions = [
   QuizQuestion(
     text: 'What flavor do you enjoy most?',
+    image: 'assets/images/q-flavors.jfif',
     answers: [
-      'Sweet (SL)',
-      'Salty (SF) ',
-      'Spicy (SE) ',
-      'Sour (SF) ',
+      QuizAnswer(
+        text: 'Sweet',
+        category: 'SL',
+      ),
+      QuizAnswer(
+        text: 'Salty',
+        category: 'SF',
+      ),
+      QuizAnswer(
+        text: 'Spicy',
+        category: 'SE',
+      ),
+      QuizAnswer(
+        text: 'Sour',
+        category: 'SF',
+      ),
     ],
-    correctAnswer: 'The UI is not updated',
   ),
   QuizQuestion(
-    text: 'Which widget is used when the UI can change over time?',
+    text: 'Which snack would you choose?',
+    image: 'assets/images/q-snacks.jfif',
     answers: [
-      'StatelessWidget',
-      'StatefulWidget',
-      'Container',
-      'MaterialApp',
+      QuizAnswer(
+        text: 'Cake',
+        category: 'SL',
+      ),
+      QuizAnswer(
+        text: 'Fries',
+        category: 'SF',
+      ),
+      QuizAnswer(
+        text: 'Nachos',
+        category: 'SF',
+      ),
+      QuizAnswer(
+        text: 'Fruit',
+        category: 'HC',
+      ),
     ],
-    correctAnswer: 'StatefulWidget',
   ),
   QuizQuestion(
-    text: 'Which method is used to rebuild a StatefulWidget?',
+    text: 'What would you most likely order at a restaurant?',
+    image: 'assets/images/q-restaurant.jpg',
     answers: [
-      'build()',
-      'setState()',
-      'createState()',
-      'initState()',
+      QuizAnswer(
+        text: 'Dessert',
+        category: 'SL',
+      ),
+      QuizAnswer(
+        text: 'Burger',
+        category: 'SF',
+      ),
+      QuizAnswer(
+        text: 'Chicken Wings',
+        category: 'SE',
+      ),
+      QuizAnswer(
+        text: 'Salad',
+        category: 'HC',
+      ),
     ],
-    correctAnswer: 'setState()',
-  ),
-  QuizQuestion(
-    text: 'What language is used to build Flutter apps?',
-    answers: [
-      'Java',
-      'C++',
-      'Dart',
-      'Python',
-    ],
-    correctAnswer: 'Dart',
   ),
 ];

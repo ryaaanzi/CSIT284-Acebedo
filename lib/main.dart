@@ -2,39 +2,39 @@ import 'package:flutter/material.dart';
 import 'data/questions.dart';
 
 void main() {
-  runApp(const QuizApp());
+  runApp(const FoodFinderApp());
 }
 
-const backgroundTop = Color.fromARGB(255, 150, 74, 74);
-const backgroundBottom = Color.fromARGB(255, 194, 188, 235);
-const primaryPurple = Color.fromARGB(255, 35, 21, 54);
-const brightPurple = Color.fromARGB(255, 154, 129, 230);
-const cardColor = Color(0xFF211A3A);
-const buttonColor = Color.fromARGB(255, 13, 12, 17);
+const backgroundTop = Color(0xFF24132F);
+const backgroundBottom = Color(0xFF0F0915);
+const primaryPink = Color(0xFFFF6B8A);
+const lightPink = Color(0xFFFFA0B4);
+const cardColor = Color(0xFF2B1A35);
+const buttonColor = Color(0xFF3A2545);
 
-class QuizApp extends StatelessWidget {
-  const QuizApp({super.key});
+class FoodFinderApp extends StatelessWidget {
+  const FoodFinderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        fontFamily: 'Roboto',
         useMaterial3: true,
+        fontFamily: 'Roboto',
       ),
-      home: const StartScreen(),
+      home: const WelcomeScreen(),
     );
   }
 }
 
-class StartScreen extends StatelessWidget {
-  const StartScreen({super.key});
+class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
 
-  void startQuiz(BuildContext context) {
+  void startFinder(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => const QuizScreen(),
+        builder: (context) => const QuestionScreen(),
       ),
     );
   }
@@ -55,67 +55,62 @@ class StartScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 28),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(22),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: primaryPurple.withOpacity(0.12),
+                      color: primaryPink.withOpacity(0.12),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: primaryPurple.withOpacity(0.35),
+                        color: primaryPink.withOpacity(0.35),
                         width: 2,
                       ),
                     ),
-                    child: Image.asset(
-                      'assets/images/quiz-logo.png',
-                      width: 190,
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/main-logo.jfif',
+                        width: 190,
+                        height: 190,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 38),
+                  const SizedBox(height: 32),
                   const Text(
-                    'Favorite Food Finder ',
+                    'Favorite Food Finder',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 34,
+                      fontSize: 31,
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 14),
                   const Text(
                     'Answer three questions and discover a food that matches your preferences.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white70,
-                      fontSize: 17,
+                      fontSize: 16,
+                      height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Test your knowledge and see how much you know.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 35),
+                  const SizedBox(height: 34),
                   SizedBox(
                     width: 220,
                     height: 54,
                     child: ElevatedButton.icon(
-                      onPressed: () => startQuiz(context),
-                      icon: const Icon(Icons.play_arrow_rounded),
-                      label: const Text('START QUIZ'),
+                      onPressed: () => startFinder(context),
+                      icon: const Icon(Icons.restaurant_rounded),
+                      label: const Text('START'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryPurple,
+                        backgroundColor: primaryPink,
                         foregroundColor: Colors.white,
-                        elevation: 8,
-                        shadowColor: primaryPurple.withOpacity(0.35),
+                        elevation: 7,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
                         ),
@@ -137,31 +132,52 @@ class StartScreen extends StatelessWidget {
   }
 }
 
-class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+class QuestionScreen extends StatefulWidget {
+  const QuestionScreen({super.key});
 
   @override
-  State<QuizScreen> createState() {
-    return _QuizScreenState();
+  State<QuestionScreen> createState() {
+    return _QuestionScreenState();
   }
 }
 
-class _QuizScreenState extends State<QuizScreen> {
+class _QuestionScreenState extends State<QuestionScreen> {
   var currentQuestionIndex = 0;
-  final List<String> selectedAnswers = [];
+  String? selectedAnswer;
 
-  void answerQuestion(String answer) {
-    selectedAnswers.add(answer);
+  final List<String> selectedCategories = [];
+
+  void selectAnswer(String answer, String category) {
+    setState(() {
+      selectedAnswer = answer;
+      if (selectedCategories.length > currentQuestionIndex) {
+        selectedCategories[currentQuestionIndex] = category;
+      } else {
+        selectedCategories.add(category);
+      }
+    });
+  }
+
+  void nextQuestion() {
+    if (selectedAnswer == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select an answer first.'),
+        ),
+      );
+      return;
+    }
 
     if (currentQuestionIndex < questions.length - 1) {
       setState(() {
         currentQuestionIndex++;
+        selectedAnswer = null;
       });
     } else {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => ResultsScreen(
-            selectedAnswers: selectedAnswers,
+          builder: (context) => ResultScreen(
+            selectedCategories: selectedCategories,
           ),
         ),
       );
@@ -170,7 +186,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentQuestion = questions[currentQuestionIndex];
+    final question = questions[currentQuestionIndex];
     final questionNumber = currentQuestionIndex + 1;
     final progress = questionNumber / questions.length;
 
@@ -187,108 +203,150 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: Column(
-              children: [
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 24, 22, 0),
+                child: Column(
                   children: [
-                    const Text(
-                      'FLUTTER QUIZ',
-                      style: TextStyle(
-                        color: brightPurple,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.5,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'FOOD FINDER',
+                          style: TextStyle(
+                            color: lightPink,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        Text(
+                          'Question $questionNumber of ${questions.length}',
+                          style: const TextStyle(
+                            color: Colors.white60,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    Text(
-                      '$questionNumber / ${questions.length}',
-                      style: const TextStyle(
-                        color: Colors.white60,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                    const SizedBox(height: 13),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 7,
+                        backgroundColor: Colors.white10,
+                        valueColor: const AlwaysStoppedAnimation(
+                          primaryPink,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 7,
-                    backgroundColor: Colors.white10,
-                    valueColor: const AlwaysStoppedAnimation(
-                      primaryPurple,
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: cardColor,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: primaryPurple.withOpacity(0.18),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.25),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 190,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.25),
+                              blurRadius: 18,
+                              offset: const Offset(0, 8),
                             ),
-                            child: Column(
-                              children: [
-                                const Icon(
-                                  Icons.quiz_rounded,
-                                  color: brightPurple,
-                                  size: 32,
-                                ),
-                                const SizedBox(height: 18),
-                                Text(
-                                  currentQuestion.text,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 21,
-                                    height: 1.35,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                          ],
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Image.asset(
+                          question.image,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(22),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: primaryPink.withOpacity(0.18),
                           ),
-                          const SizedBox(height: 24),
-                          ...currentQuestion.answers.asMap().entries.map(
-                            (entry) {
-                              final index = entry.key;
-                              final answer = entry.value;
+                        ),
+                        child: Text(
+                          question.text,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 21,
+                            height: 1.35,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ...question.answers.map(
+                        (answer) {
+                          final isSelected =
+                              selectedAnswer == answer.text;
 
-                              return QuizAnswerButton(
-                                number: String.fromCharCode(65 + index),
-                                text: answer,
-                                onPressed: () => answerQuestion(answer),
+                          return FoodAnswerButton(
+                            text: answer.text,
+                            selected: isSelected,
+                            onPressed: () {
+                              selectAnswer(
+                                answer.text,
+                                answer.category,
                               );
                             },
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton.icon(
+                          onPressed: nextQuestion,
+                          icon: Icon(
+                            currentQuestionIndex ==
+                                    questions.length - 1
+                                ? Icons.check_rounded
+                                : Icons.arrow_forward_rounded,
+                          ),
+                          label: Text(
+                            currentQuestionIndex ==
+                                    questions.length - 1
+                                ? 'SEE MY RESULT'
+                                : 'NEXT QUESTION',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryPink,
+                            foregroundColor: Colors.white,
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -296,16 +354,16 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 }
 
-class QuizAnswerButton extends StatelessWidget {
-  const QuizAnswerButton({
+class FoodAnswerButton extends StatelessWidget {
+  const FoodAnswerButton({
     super.key,
-    required this.number,
     required this.text,
+    required this.selected,
     required this.onPressed,
   });
 
-  final String number;
   final String text;
+  final bool selected;
   final VoidCallback onPressed;
 
   @override
@@ -316,52 +374,41 @@ class QuizAnswerButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: buttonColor,
+          backgroundColor:
+              selected ? primaryPink.withOpacity(0.25) : buttonColor,
           foregroundColor: Colors.white,
           elevation: 0,
           padding: const EdgeInsets.symmetric(
-            vertical: 15,
-            horizontal: 14,
+            vertical: 16,
+            horizontal: 18,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: Colors.white.withOpacity(0.08),
+              color: selected
+                  ? primaryPink
+                  : Colors.white.withOpacity(0.08),
+              width: selected ? 2 : 1,
             ),
           ),
         ),
         child: Row(
           children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: primaryPurple.withOpacity(0.18),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                number,
-                style: const TextStyle(
-                  color: brightPurple,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            Icon(
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
+              color: selected ? lightPink : Colors.white38,
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 text,
-                textAlign: TextAlign.left,
                 style: const TextStyle(
-                  fontSize: 14,
-                  height: 1.3,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-            ),
-            const Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.white24,
             ),
           ],
         ),
@@ -370,30 +417,88 @@ class QuizAnswerButton extends StatelessWidget {
   }
 }
 
-class ResultsScreen extends StatelessWidget {
-  const ResultsScreen({
+class ResultScreen extends StatelessWidget {
+  const ResultScreen({
     super.key,
-    required this.selectedAnswers,
+    required this.selectedCategories,
   });
 
-  final List<String> selectedAnswers;
+  final List<String> selectedCategories;
 
-  int get score {
-    var totalCorrect = 0;
+  String get recommendedCategory {
+    final scores = {
+      'SL': 0,
+      'SF': 0,
+      'SE': 0,
+      'HC': 0,
+    };
 
-    for (var i = 0; i < selectedAnswers.length; i++) {
-      if (selectedAnswers[i] == questions[i].correctAnswer) {
-        totalCorrect++;
+    for (final category in selectedCategories) {
+      scores[category] = scores[category]! + 1;
+    }
+
+    var highestCategory = 'SL';
+    var highestScore = scores[highestCategory]!;
+
+    for (final entry in scores.entries) {
+      if (entry.value > highestScore) {
+        highestCategory = entry.key;
+        highestScore = entry.value;
       }
     }
 
-    return totalCorrect;
+    return highestCategory;
   }
 
-  void restartQuiz(BuildContext context) {
+  String get categoryName {
+    switch (recommendedCategory) {
+      case 'SL':
+        return 'Sweet Lover';
+      case 'SF':
+        return 'Savory Fan';
+      case 'SE':
+        return 'Spicy Explorer';
+      case 'HC':
+        return 'Healthy Choice';
+      default:
+        return 'Food Lover';
+    }
+  }
+
+  String get categoryDescription {
+    switch (recommendedCategory) {
+      case 'SL':
+        return 'You enjoy desserts, sweet flavors, and sugary treats.';
+      case 'SF':
+        return 'You enjoy salty, savory, and flavorful foods.';
+      case 'SE':
+        return 'You like bold flavors and foods with a kick.';
+      case 'HC':
+        return 'You prefer lighter and healthier meal choices.';
+      default:
+        return 'You have a great taste in food.';
+    }
+  }
+
+  String get categoryImage {
+    switch (recommendedCategory) {
+      case 'SL':
+        return 'assets/images/a-sweets.webp';
+      case 'SF':
+        return 'assets/images/a-savory.jpg';
+      case 'SE':
+        return 'assets/images/a-spicy.jpg';
+      case 'HC':
+        return 'assets/images/a-healthy.jpg';
+      default:
+        return 'assets/images/a-sweets.webp';
+    }
+  }
+
+  void tryAgain(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (context) => const StartScreen(),
+        builder: (context) => const WelcomeScreen(),
       ),
       (route) => false,
     );
@@ -401,8 +506,6 @@ class ResultsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percentage = (score / questions.length * 100).round();
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -424,191 +527,85 @@ class ResultsScreen extends StatelessWidget {
             child: Column(
               children: [
                 const Icon(
-                  Icons.emoji_events_rounded,
-                  color: Colors.amber,
-                  size: 65,
+                  Icons.restaurant_menu_rounded,
+                  color: lightPink,
+                  size: 54,
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
                 const Text(
-                  'Quiz Complete!',
+                  'Your Recommended Food Type',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 30,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  score == questions.length
-                      ? 'Perfect score!'
-                      : 'Here is how you performed.',
-                  style: const TextStyle(
-                    color: Colors.white54,
-                    fontSize: 15,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
                     color: cardColor,
-                    borderRadius: BorderRadius.circular(22),
+                    borderRadius: BorderRadius.circular(24),
                     border: Border.all(
-                      color: primaryPurple.withOpacity(0.2),
+                      color: primaryPink.withOpacity(0.2),
                     ),
                   ),
                   child: Column(
                     children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Image.asset(
+                          categoryImage,
+                          width: double.infinity,
+                          height: 210,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      const Text(
+                        'Recommended Category',
+                        style: TextStyle(
+                          color: Colors.white54,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 7),
                       Text(
-                        '$score / ${questions.length}',
+                        categoryName,
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: brightPurple,
-                          fontSize: 42,
+                          color: lightPink,
+                          fontSize: 29,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 12),
                       Text(
-                        '$percentage% CORRECT',
+                        categoryDescription,
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Colors.white60,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
+                          color: Colors.white70,
+                          fontSize: 15,
+                          height: 1.45,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 30),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'ANSWER REVIEW',
-                    style: TextStyle(
-                      color: brightPurple,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 14),
-                ...questions.asMap().entries.map(
-                  (entry) {
-                    final index = entry.key;
-                    final question = entry.value;
-                    final selectedAnswer = selectedAnswers[index];
-                    final isCorrect =
-                        selectedAnswer == question.correctAnswer;
-
-                    return Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(
-                          color: isCorrect
-                              ? Colors.greenAccent.withOpacity(0.2)
-                              : Colors.redAccent.withOpacity(0.2),
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 30,
-                                height: 30,
-                                decoration: BoxDecoration(
-                                  color: isCorrect
-                                      ? Colors.green.withOpacity(0.18)
-                                      : Colors.red.withOpacity(0.18),
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  isCorrect
-                                      ? Icons.check_rounded
-                                      : Icons.close_rounded,
-                                  color: isCorrect
-                                      ? Colors.greenAccent
-                                      : Colors.redAccent,
-                                  size: 18,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  '${index + 1}. ${question.text}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                    height: 1.3,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Your answer',
-                            style: TextStyle(
-                              color: isCorrect
-                                  ? Colors.greenAccent
-                                  : Colors.redAccent,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            selectedAnswer,
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                          if (!isCorrect) ...[
-                            const SizedBox(height: 9),
-                            const Text(
-                              'Correct answer',
-                              style: TextStyle(
-                                color: Colors.greenAccent,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              question.correctAnswer,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 25),
                 SizedBox(
-                  width: 210,
-                  height: 50,
+                  width: 220,
+                  height: 52,
                   child: ElevatedButton.icon(
-                    onPressed: () => restartQuiz(context),
+                    onPressed: () => tryAgain(context),
                     icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('RESTART QUIZ'),
+                    label: const Text('TRY AGAIN'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryPurple,
+                      backgroundColor: primaryPink,
                       foregroundColor: Colors.white,
                       elevation: 6,
                       shape: RoundedRectangleBorder(
@@ -621,7 +618,6 @@ class ResultsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
               ],
             ),
           ),

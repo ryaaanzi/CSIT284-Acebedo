@@ -1,11 +1,21 @@
-class QuizQuestion {
-  const QuizQuestion({
+class QuizAnswer {
+  const QuizAnswer({
     required this.text,
-    required this.answers,
-    required this.correctAnswer,
+    required this.category,
   });
 
   final String text;
-  final List<String> answers;
-  final String correctAnswer;
+  final String category;
+}
+
+class QuizQuestion {
+  const QuizQuestion({
+    required this.text,
+    required this.image,
+    required this.answers,
+  });
+
+  final String text;
+  final String image;
+  final List<QuizAnswer> answers;
 }
