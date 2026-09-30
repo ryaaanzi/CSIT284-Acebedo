@@ -11,12 +11,44 @@ class AppTheme {
   static const subtleText = Color(0xFF718579);
   static const border = Color(0xFF24422D);
 
+  static const forestBackground = Color(0xFF0A1710);
+  static const forestSurface = Color(0xFF10251A);
+  static const forestCard = Color(0xFF163321);
+  static const forestPrimary = Color(0xFF8CFF9A);
+  static const forestBorder = Color(0xFF31563B);
+
   static ThemeData get darkTheme {
+    return _buildTheme(
+      background: background,
+      surface: surface,
+      card: card,
+      primary: primary,
+      border: border,
+    );
+  }
+
+  static ThemeData get forestTheme {
+    return _buildTheme(
+      background: forestBackground,
+      surface: forestSurface,
+      card: forestCard,
+      primary: forestPrimary,
+      border: forestBorder,
+    );
+  }
+
+  static ThemeData _buildTheme({
+    required Color background,
+    required Color surface,
+    required Color card,
+    required Color primary,
+    required Color border,
+  }) {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: background,
-      colorScheme: const ColorScheme.dark(
+      colorScheme: ColorScheme.dark(
         primary: primary,
         secondary: primary,
         surface: surface,

@@ -10,22 +10,45 @@ void main() {
   runApp(const ExpenseTrackerApp());
 }
 
-class ExpenseTrackerApp extends StatelessWidget {
+class ExpenseTrackerApp extends StatefulWidget {
   const ExpenseTrackerApp({super.key});
+
+  @override
+  State<ExpenseTrackerApp> createState() => _ExpenseTrackerAppState();
+}
+
+class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
+  bool _forestMode = false;
+
+  void _toggleTheme() {
+    setState(() {
+      _forestMode = !_forestMode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Expense Tracker',
-      theme: AppTheme.darkTheme,
-      home: const ExpenseTrackerScreen(),
+      theme: _forestMode ? AppTheme.forestTheme : AppTheme.darkTheme,
+      home: ExpenseTrackerScreen(
+        forestMode: _forestMode,
+        onThemeChanged: _toggleTheme,
+      ),
     );
   }
 }
 
 class ExpenseTrackerScreen extends StatefulWidget {
-  const ExpenseTrackerScreen({super.key});
+  const ExpenseTrackerScreen({
+    required this.forestMode,
+    required this.onThemeChanged,
+    super.key,
+  });
+
+  final bool forestMode;
+  final VoidCallback onThemeChanged;
 
   @override
   State<ExpenseTrackerScreen> createState() => _ExpenseTrackerScreenState();
@@ -165,6 +188,18 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               ],
             ),
             actions: [
+              IconButton(
+                onPressed: widget.onThemeChanged,
+                tooltip: widget.forestMode
+                    ? 'Switch to Night Mode'
+                    : 'Switch to Forest Mode',
+                icon: Icon(
+                  widget.forestMode
+                      ? Icons.nightlight_round
+                      : Icons.forest_rounded,
+                  color: AppTheme.primary,
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 14),
                 child: IconButton(
@@ -213,10 +248,24 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                         itemBuilder: (context, index) {
                           final expense = dummyExpenses[index];
 
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildExpenseItem(expense),
-                          );
+                         return TweenAnimationBuilder<double>(
+  duration: Duration(milliseconds: 300 + (index * 60)),
+  tween: Tween(begin: 0, end: 1),
+  curve: Curves.easeOutCubic,
+  builder: (context, value, child) {
+    return Opacity(
+      opacity: value,
+      child: Transform.translate(
+        offset: Offset(0, 18 * (1 - value)),
+        child: child,
+      ),
+    );
+  },
+  child: Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: _buildExpenseItem(expense),
+  ),
+);
                         },
                       ),
               ),
@@ -249,12 +298,12 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         border: Border.all(
           color: AppTheme.primary.withValues(alpha: 0.18),
         ),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF163B24),
-            Color(0xFF0B2114),
+            AppTheme.primary.withValues(alpha: 0.16),
+            AppTheme.surface,
           ],
         ),
         boxShadow: [
@@ -309,7 +358,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
             '${dummyExpenses.length} recorded '
             '${dummyExpenses.length == 1 ? 'expense' : 'expenses'}',
             style: const TextStyle(
-              color: Color(0xFF7F9988),
+              color: AppTheme.subtleText,
               fontSize: 13,
             ),
           ),
@@ -661,7 +710,7 @@ class _AddExpenseSheetState extends State<AddExpenseSheet> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
+            colorScheme: ColorScheme.dark(
               primary: AppTheme.primary,
               onPrimary: AppTheme.background,
               surface: AppTheme.card,
