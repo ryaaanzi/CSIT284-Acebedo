@@ -124,205 +124,238 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     );
   }
 
- @override
-Widget build(BuildContext context) {
-      final mediaQuery = MediaQuery.of(context);
-      final screenWidth = mediaQuery.size.width;
-      final isLandscape = mediaQuery.orientation == Orientation.landscape;
-      final isWideScreen = screenWidth >= 600 || isLandscape;
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final isWideScreen = screenWidth >= 600 || isLandscape;
 
-  return Stack(
+    return Stack(
       children: [
         const BackgroundGlow(),
-        Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            titleSpacing: 20,
-            title: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Expense Tracker',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.5,
+        SafeArea(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              titleSpacing: 20,
+              title: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Expense Tracker',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Track it. Spend smarter.',
+                    style: TextStyle(
+                      color: AppTheme.subtleText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  onPressed: widget.onThemeChanged,
+                  tooltip: widget.forestMode
+                      ? 'Switch to Night Mode'
+                      : 'Switch to Forest Mode',
+                  icon: Icon(
+                    widget.forestMode
+                        ? Icons.nightlight_round
+                        : Icons.forest_rounded,
+                    color: AppTheme.primary,
                   ),
                 ),
-                SizedBox(height: 2),
-                Text(
-                  'Track it. Spend smarter.',
-                  style: TextStyle(
-                    color: AppTheme.subtleText,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: IconButton(
+                    onPressed: _openAddExpenseSheet,
+                    tooltip: 'Add Expense',
+                    icon: Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary,
+                        borderRadius: BorderRadius.circular(13),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                AppTheme.primary.withValues(alpha: 0.25),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.add_rounded,
+                        color: AppTheme.background,
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                onPressed: widget.onThemeChanged,
-                tooltip: widget.forestMode
-                    ? 'Switch to Night Mode'
-                    : 'Switch to Forest Mode',
-                icon: Icon(
-                  widget.forestMode
-                      ? Icons.nightlight_round
-                      : Icons.forest_rounded,
-                  color: AppTheme.primary,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 14),
-                child: IconButton(
-                  onPressed: _openAddExpenseSheet,
-                  tooltip: 'Add Expense',
-                  icon: Container(
-                    padding: const EdgeInsets.all(9),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primary,
-                      borderRadius: BorderRadius.circular(13),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primary.withValues(alpha: 0.25),
-                          blurRadius: 16,
-                          spreadRadius: 1,
+            body: isWideScreen
+                ? Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      isLandscape ? 20 : 24,
+                      8,
+                      isLandscape ? 20 : 24,
+                      24,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: Column(
+                              children: [
+                                _buildSummaryCard(),
+                                const SizedBox(height: 12),
+                                _buildCategoryOverview(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: isLandscape ? 14 : 20,
+                        ),
+                        Expanded(
+                          flex: 3,
+                          child: dummyExpenses.isEmpty
+                              ? _buildEmptyState()
+                              : ListView.builder(
+                                  padding: EdgeInsets.only(
+                                    bottom: isLandscape ? 90 : 110,
+                                  ),
+                                  itemCount: dummyExpenses.length,
+                                  itemBuilder: (context, index) {
+                                    final expense =
+                                        dummyExpenses[index];
+
+                                    return TweenAnimationBuilder<double>(
+                                      duration: Duration(
+                                        milliseconds: 300 + (index * 60),
+                                      ),
+                                      tween: Tween(begin: 0, end: 1),
+                                      curve: Curves.easeOutCubic,
+                                      builder: (
+                                        context,
+                                        value,
+                                        child,
+                                      ) {
+                                        return Opacity(
+                                          opacity: value,
+                                          child: Transform.translate(
+                                            offset: Offset(
+                                              0,
+                                              18 * (1 - value),
+                                            ),
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 12,
+                                        ),
+                                        child:
+                                            _buildExpenseItem(expense),
+                                      ),
+                                    );
+                                  },
+                                ),
                         ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.add_rounded,
-                      color: AppTheme.background,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-         body: isWideScreen
-    ? Padding(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: SingleChildScrollView(
-                       padding: const EdgeInsets.only(right: 8),
-                child: Column(
-                  children: [
-                    _buildSummaryCard(),
-                    const SizedBox(height: 12),
-                    _buildCategoryOverview(),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              flex: 3,
-              child: dummyExpenses.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 110),
-                      itemCount: dummyExpenses.length,
-                      itemBuilder: (context, index) {
-                        final expense = dummyExpenses[index];
-
-                        return TweenAnimationBuilder<double>(
-                          duration: Duration(
-                            milliseconds: 300 + (index * 60),
-                          ),
-                          tween: Tween(begin: 0, end: 1),
-                          curve: Curves.easeOutCubic,
-                          builder: (context, value, child) {
-                            return Opacity(
-                              opacity: value,
-                              child: Transform.translate(
-                                offset: Offset(
+                  )
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16,
+                          8,
+                          16,
+                          18,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildSummaryCard(),
+                            const SizedBox(height: 12),
+                            _buildCategoryOverview(),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: dummyExpenses.isEmpty
+                            ? _buildEmptyState()
+                            : ListView.builder(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
                                   0,
-                                  18 * (1 - value),
+                                  16,
+                                  110,
                                 ),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildExpenseItem(expense),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-          ],
-        ),
-      )
-    : Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 18),
-            child: Column(
-              children: [
-                _buildSummaryCard(),
-                const SizedBox(height: 12),
-                _buildCategoryOverview(),
-              ],
-            ),
-          ),
-          Expanded(
-            child: dummyExpenses.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(
-                      16,
-                      0,
-                      16,
-                      110,
-                    ),
-                    itemCount: dummyExpenses.length,
-                    itemBuilder: (context, index) {
-                      final expense = dummyExpenses[index];
+                                itemCount: dummyExpenses.length,
+                                itemBuilder: (context, index) {
+                                  final expense =
+                                      dummyExpenses[index];
 
-                      return TweenAnimationBuilder<double>(
-                        duration: Duration(
-                          milliseconds: 300 + (index * 60),
-                        ),
-                        tween: Tween(begin: 0, end: 1),
-                        curve: Curves.easeOutCubic,
-                        builder: (context, value, child) {
-                          return Opacity(
-                            opacity: value,
-                            child: Transform.translate(
-                              offset: Offset(
-                                0,
-                                18 * (1 - value),
+                                  return TweenAnimationBuilder<double>(
+                                    duration: Duration(
+                                      milliseconds: 300 + (index * 60),
+                                    ),
+                                    tween: Tween(begin: 0, end: 1),
+                                    curve: Curves.easeOutCubic,
+                                    builder: (
+                                      context,
+                                      value,
+                                      child,
+                                    ) {
+                                      return Opacity(
+                                        opacity: value,
+                                        child: Transform.translate(
+                                          offset: Offset(
+                                            0,
+                                            18 * (1 - value),
+                                          ),
+                                          child: child,
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child:
+                                          _buildExpenseItem(expense),
+                                    ),
+                                  );
+                                },
                               ),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildExpenseItem(expense),
-                        ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-          ),
-        ],
-      ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: _openAddExpenseSheet,
-            backgroundColor: AppTheme.primary,
-            foregroundColor: AppTheme.background,
-            elevation: 8,
-            icon: const Icon(Icons.add_rounded),
-            label: const Text(
-              'Add Expense',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: _openAddExpenseSheet,
+              backgroundColor: AppTheme.primary,
+              foregroundColor: AppTheme.background,
+              elevation: 8,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text(
+                'Add Expense',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ),
