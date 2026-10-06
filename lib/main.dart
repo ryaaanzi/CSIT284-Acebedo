@@ -1,10 +1,13 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'data/dummy_expenses.dart';
 import 'models/expense.dart';
 import 'theme/app_theme.dart';
+import 'widgets/background_glow.dart';
+import 'widgets/expenses/expense_item.dart';
+import 'widgets/forms/add_expense_sheet.dart';
+import 'widgets/glass_card.dart';
+
 
 void main() {
   runApp(const ExpenseTrackerApp());
@@ -160,7 +163,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const _BackgroundGlow(),
+        const BackgroundGlow(),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
@@ -248,24 +251,28 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                         itemBuilder: (context, index) {
                           final expense = dummyExpenses[index];
 
-                         return TweenAnimationBuilder<double>(
-  duration: Duration(milliseconds: 300 + (index * 60)),
-  tween: Tween(begin: 0, end: 1),
-  curve: Curves.easeOutCubic,
-  builder: (context, value, child) {
-    return Opacity(
-      opacity: value,
-      child: Transform.translate(
-        offset: Offset(0, 18 * (1 - value)),
-        child: child,
-      ),
-    );
-  },
-  child: Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: _buildExpenseItem(expense),
-  ),
-);
+                          return TweenAnimationBuilder<double>(
+                            duration:
+                                Duration(milliseconds: 300 + (index * 60)),
+                            tween: Tween(begin: 0, end: 1),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return Opacity(
+                                opacity: value,
+                                child: Transform.translate(
+                                  offset: Offset(
+                                    0,
+                                    18 * (1 - value),
+                                  ),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _buildExpenseItem(expense),
+                            ),
+                          );
                         },
                       ),
               ),
@@ -457,95 +464,19 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     );
   }
 
-  Widget _buildExpenseItem(Expense expense) {
-    final categoryColor = getCategoryColor(expense.category);
-
-    return Dismissible(
-      key: ObjectKey(expense),
-      direction: DismissDirection.horizontal,
-      background: _buildDismissBackground(true),
-      secondaryBackground: _buildDismissBackground(false),
-      onDismissed: (_) {
-        _removeExpense(expense);
-      },
-      child: GlassCard(
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: categoryColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: categoryColor.withValues(alpha: 0.16),
-                  ),
-                ),
-                child: Icon(
-                  getCategoryIcon(expense.category),
-                  color: categoryColor,
-                  size: 23,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      expense.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text(
-                          formatCategory(expense.category),
-                          style: TextStyle(
-                            color: categoryColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const Text(
-                          '  •  ',
-                          style: TextStyle(
-                            color: Color(0xFF506258),
-                          ),
-                        ),
-                        Text(
-                          formatDate(expense.date),
-                          style: const TextStyle(
-                            color: Color(0xFF73877A),
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '₱${expense.amount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  color: AppTheme.softGreen,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+Widget _buildExpenseItem(Expense expense) {
+  return ExpenseItem(
+    expense: expense,
+    categoryColor: getCategoryColor(expense.category),
+    categoryIcon: getCategoryIcon(expense.category),
+    categoryName: formatCategory(expense.category),
+    formattedDate: formatDate(expense.date),
+    onDismissed: () {
+      _removeExpense(expense);
+    },
+    dismissBackground: _buildDismissBackground,
+  );
+}
 
   Widget _buildDismissBackground(bool left) {
     return Container(
@@ -610,309 +541,5 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
   }
 }
 
-class GlassCard extends StatelessWidget {
-  const GlassCard({
-    required this.child,
-    super.key,
-  });
 
-  final Widget child;
 
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(18),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(
-          sigmaX: 12,
-          sigmaY: 12,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: AppTheme.card.withValues(alpha: 0.82),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: AppTheme.primary.withValues(alpha: 0.10),
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
-class _BackgroundGlow extends StatelessWidget {
-  const _BackgroundGlow();
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: Stack(
-        children: [
-          Positioned(
-            top: -120,
-            right: -100,
-            child: Container(
-              width: 280,
-              height: 280,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppTheme.primary.withValues(alpha: 0.08),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 260,
-            left: -160,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF0AFF62).withValues(alpha: 0.035),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AddExpenseSheet extends StatefulWidget {
-  const AddExpenseSheet({super.key});
-
-  @override
-  State<AddExpenseSheet> createState() => _AddExpenseSheetState();
-}
-
-class _AddExpenseSheetState extends State<AddExpenseSheet> {
-  final _titleController = TextEditingController();
-  final _amountController = TextEditingController();
-
-  Category _selectedCategory = Category.food;
-  DateTime _selectedDate = DateTime.now();
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _amountController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectDate() async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.dark(
-              primary: AppTheme.primary,
-              onPrimary: AppTheme.background,
-              surface: AppTheme.card,
-              onSurface: Colors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate == null) {
-      return;
-    }
-
-    setState(() {
-      _selectedDate = pickedDate;
-    });
-  }
-
-  void _saveExpense() {
-    final title = _titleController.text.trim();
-    final amount = double.tryParse(_amountController.text.trim());
-
-    if (title.isEmpty || amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: Color(0xFF321719),
-          content: Text(
-            'Please enter a valid title and amount.',
-          ),
-        ),
-      );
-      return;
-    }
-
-    dummyExpenses.add(
-      Expense(
-        title: title,
-        amount: amount,
-        date: _selectedDate,
-        category: _selectedCategory,
-      ),
-    );
-
-    Navigator.of(context).pop();
-  }
-
-  String formatDate(DateTime date) {
-    return '${date.month.toString().padLeft(2, '0')}/'
-        '${date.day.toString().padLeft(2, '0')}/'
-        '${date.year}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          16,
-          12,
-          16,
-          bottomInset + 16,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Center(
-                child: Container(
-                  width: 42,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF34503D),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-              const Text(
-                'Add Expense',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 5),
-              const Text(
-                'Record where your money went.',
-                style: TextStyle(
-                  color: AppTheme.subtleText,
-                  fontSize: 13,
-                ),
-              ),
-              const SizedBox(height: 22),
-              TextField(
-                controller: _titleController,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Expense Title',
-                  hintText: 'e.g. Lunch',
-                  prefixIcon: Icon(Icons.edit_rounded),
-                ),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  hintText: 'e.g. 250.00',
-                  prefixIcon: Icon(Icons.payments_rounded),
-                  prefixText: '₱ ',
-                ),
-              ),
-              const SizedBox(height: 14),
-              DropdownButtonFormField<Category>(
-                initialValue: _selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  prefixIcon: Icon(Icons.category_rounded),
-                ),
-                items: Category.values.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(
-                      category.name[0].toUpperCase() +
-                          category.name.substring(1),
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value == null) {
-                    return;
-                  }
-
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 14),
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Date: ${formatDate(_selectedDate)}',
-                      style: const TextStyle(
-                        color: AppTheme.secondaryText,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: _selectDate,
-                    icon: const Icon(Icons.calendar_month_rounded),
-                    label: const Text('Date'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppTheme.primary,
-                      side: const BorderSide(
-                        color: Color(0xFF34503D),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 52,
-                child: FilledButton.icon(
-                  onPressed: _saveExpense,
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text(
-                    'Save Expense',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTheme.primary,
-                    foregroundColor: AppTheme.background,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
