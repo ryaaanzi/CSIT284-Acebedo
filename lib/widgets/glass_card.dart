@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
+
 
 class GlassCard extends StatelessWidget {
   const GlassCard({
@@ -14,6 +14,8 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: BackdropFilter(
@@ -23,10 +25,10 @@ class GlassCard extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: AppTheme.card.withValues(alpha: 0.82),
+            color: colors.surface.withValues(alpha: 0.88),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: AppTheme.primary.withValues(alpha: 0.10),
+              color: colors.primary.withValues(alpha: 0.10),
             ),
           ),
           child: child,

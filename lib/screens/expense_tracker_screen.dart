@@ -83,7 +83,9 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: widget.forestMode
+    ? AppTheme.forestBackground
+    : AppTheme.background,
       builder: (context) {
         return const AddExpenseSheet();
       },
@@ -186,8 +188,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                         borderRadius: BorderRadius.circular(13),
                         boxShadow: [
                           BoxShadow(
-                            color:
-                                AppTheme.primary.withValues(alpha: 0.25),
+                            color: AppTheme.primary.withValues(alpha: 0.25),
                             blurRadius: 16,
                             spreadRadius: 1,
                           ),
@@ -231,49 +232,35 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                         ),
                         Expanded(
                           flex: 3,
-                          child: dummyExpenses.isEmpty
-                              ? _buildEmptyState()
-                              : ListView.builder(
-                                  padding: EdgeInsets.only(
-                                    bottom: isLandscape ? 90 : 110,
-                                  ),
-                                  itemCount: dummyExpenses.length,
-                                  itemBuilder: (context, index) {
-                                    final expense =
-                                        dummyExpenses[index];
-
-                                    return TweenAnimationBuilder<double>(
-                                      duration: Duration(
-                                        milliseconds: 300 + (index * 60),
-                                      ),
-                                      tween: Tween(begin: 0, end: 1),
-                                      curve: Curves.easeOutCubic,
-                                      builder: (
-                                        context,
-                                        value,
-                                        child,
-                                      ) {
-                                        return Opacity(
-                                          opacity: value,
-                                          child: Transform.translate(
-                                            offset: Offset(
-                                              0,
-                                              18 * (1 - value),
-                                            ),
-                                            child: child,
-                                          ),
-                                        );
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildSectionHeader(
+                                'RECENT EXPENSES',
+                                'Swipe an expense to delete it.',
+                              ),
+                              const SizedBox(height: 10),
+                              Expanded(
+                                child: dummyExpenses.isEmpty
+                                    ? _buildEmptyState()
+                                    : ListView.builder(
+                                        padding: EdgeInsets.only(
+                                          bottom: isLandscape ? 90 : 110,
                                         ),
-                                        child:
-                                            _buildExpenseItem(expense),
+                                        itemCount: dummyExpenses.length,
+                                        itemBuilder: (context, index) {
+                                          final expense =
+                                              dummyExpenses[index];
+
+                                          return _buildAnimatedExpenseItem(
+                                            expense,
+                                            index,
+                                          );
+                                        },
                                       ),
-                                    );
-                                  },
-                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -285,7 +272,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                           16,
                           8,
                           16,
-                          18,
+                          14,
                         ),
                         child: Column(
                           children: [
@@ -293,6 +280,18 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                             const SizedBox(height: 12),
                             _buildCategoryOverview(),
                           ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          16,
+                          0,
+                          16,
+                          10,
+                        ),
+                        child: _buildSectionHeader(
+                          'RECENT EXPENSES',
+                          'Swipe to delete',
                         ),
                       ),
                       Expanded(
@@ -307,38 +306,11 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                                 ),
                                 itemCount: dummyExpenses.length,
                                 itemBuilder: (context, index) {
-                                  final expense =
-                                      dummyExpenses[index];
+                                  final expense = dummyExpenses[index];
 
-                                  return TweenAnimationBuilder<double>(
-                                    duration: Duration(
-                                      milliseconds: 300 + (index * 60),
-                                    ),
-                                    tween: Tween(begin: 0, end: 1),
-                                    curve: Curves.easeOutCubic,
-                                    builder: (
-                                      context,
-                                      value,
-                                      child,
-                                    ) {
-                                      return Opacity(
-                                        opacity: value,
-                                        child: Transform.translate(
-                                          offset: Offset(
-                                            0,
-                                            18 * (1 - value),
-                                          ),
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 12,
-                                      ),
-                                      child:
-                                          _buildExpenseItem(expense),
-                                    ),
+                                  return _buildAnimatedExpenseItem(
+                                    expense,
+                                    index,
                                   );
                                 },
                               ),
@@ -361,6 +333,74 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, String subtitle) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppTheme.mutedGreen,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: AppTheme.subtleText,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const Icon(
+          Icons.swipe_rounded,
+          color: AppTheme.subtleText,
+          size: 17,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAnimatedExpenseItem(Expense expense, int index) {
+    return TweenAnimationBuilder<double>(
+      duration: Duration(
+        milliseconds: 300 + (index * 60),
+      ),
+      tween: Tween(begin: 0, end: 1),
+      curve: Curves.easeOutCubic,
+      builder: (
+        context,
+        value,
+        child,
+      ) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(
+              0,
+              18 * (1 - value),
+            ),
+            child: child,
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(
+          bottom: 12,
+        ),
+        child: _buildExpenseItem(expense),
+      ),
     );
   }
 
