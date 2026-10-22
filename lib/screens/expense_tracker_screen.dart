@@ -1,3 +1,4 @@
+﻿
 import 'package:flutter/material.dart';
 
 import '../data/dummy_expenses.dart';
@@ -5,8 +6,9 @@ import '../models/expense.dart';
 import '../theme/app_theme.dart';
 import '../widgets/background_glow.dart';
 import '../widgets/expenses/expense_item.dart';
-import '../widgets/forms/add_expense_sheet.dart';
 import '../widgets/glass_card.dart';
+import 'add_expense_screen.dart';
+import 'expense_details_screen.dart';
 
 class ExpenseTrackerScreen extends StatefulWidget {
   const ExpenseTrackerScreen({
@@ -70,7 +72,8 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
   }
 
   String formatCategory(Category category) {
-    return category.name[0].toUpperCase() + category.name.substring(1);
+    return category.name[0].toUpperCase() +
+        category.name.substring(1);
   }
 
   String formatDate(DateTime date) {
@@ -79,23 +82,48 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         '${date.year}';
   }
 
-  void _openAddExpenseSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: widget.forestMode
-    ? AppTheme.forestBackground
-    : AppTheme.background,
-      builder: (context) {
-        return const AddExpenseSheet();
-      },
-    ).then((_) {
-      setState(() {});
+  Future<void> _openAddExpenseScreen() async {
+    final newExpense = await Navigator.of(context).push<Expense>(
+      MaterialPageRoute<Expense>(
+        builder: (context) => const AddExpenseScreen(),
+      ),
+    );
+
+    if (!mounted || newExpense == null) {
+      return;
+    }
+
+    setState(() {
+      dummyExpenses.add(newExpense);
     });
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text('${newExpense.title} added successfully.'),
+          backgroundColor: const Color(0xFF17321F),
+        ),
+      );
+  }
+
+  Future<void> _openExpenseDetails(Expense expense) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (context) => ExpenseDetailsScreen(
+          expense: expense,
+        ),
+      ),
+    );
   }
 
   void _removeExpense(Expense expense) {
     final removedIndex = dummyExpenses.indexOf(expense);
+
+    if (removedIndex == -1) {
+      return;
+    }
 
     setState(() {
       dummyExpenses.remove(expense);
@@ -109,16 +137,18 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         backgroundColor: const Color(0xFF17321F),
         content: Text(
           '${expense.title} deleted.',
-          style: const TextStyle(
-            color: Colors.white,
-          ),
+          style: const TextStyle(color: Colors.white),
         ),
         action: SnackBarAction(
           label: 'UNDO',
           textColor: AppTheme.primary,
           onPressed: () {
             setState(() {
-              dummyExpenses.insert(removedIndex, expense);
+              final safeIndex = removedIndex.clamp(
+                0,
+                dummyExpenses.length,
+              );
+              dummyExpenses.insert(safeIndex, expense);
             });
           },
         ),
@@ -179,7 +209,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 14),
                   child: IconButton(
-                    onPressed: _openAddExpenseSheet,
+                    onPressed: _openAddExpenseScreen,
                     tooltip: 'Add Expense',
                     icon: Container(
                       padding: const EdgeInsets.all(9),
@@ -227,9 +257,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
-                          width: isLandscape ? 14 : 20,
-                        ),
+                        SizedBox(width: isLandscape ? 14 : 20),
                         Expanded(
                           flex: 3,
                           child: Column(
@@ -237,7 +265,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                             children: [
                               _buildSectionHeader(
                                 'RECENT EXPENSES',
-                                'Swipe an expense to delete it.',
+                                'Tap an expense for details.',
                               ),
                               const SizedBox(height: 10),
                               Expanded(
@@ -291,7 +319,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                         ),
                         child: _buildSectionHeader(
                           'RECENT EXPENSES',
-                          'Swipe to delete',
+                          'Tap an expense for details.',
                         ),
                       ),
                       Expanded(
@@ -318,16 +346,14 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
                     ],
                   ),
             floatingActionButton: FloatingActionButton.extended(
-              onPressed: _openAddExpenseSheet,
+              onPressed: _openAddExpenseScreen,
               backgroundColor: AppTheme.primary,
               foregroundColor: AppTheme.background,
               elevation: 8,
               icon: const Icon(Icons.add_rounded),
               label: const Text(
                 'Add Expense',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: TextStyle(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -374,31 +400,21 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
 
   Widget _buildAnimatedExpenseItem(Expense expense, int index) {
     return TweenAnimationBuilder<double>(
-      duration: Duration(
-        milliseconds: 300 + (index * 60),
-      ),
+      key: ValueKey(expense),
+      duration: Duration(milliseconds: 300 + (index * 60)),
       tween: Tween(begin: 0, end: 1),
       curve: Curves.easeOutCubic,
-      builder: (
-        context,
-        value,
-        child,
-      ) {
+      builder: (context, value, child) {
         return Opacity(
           opacity: value,
           child: Transform.translate(
-            offset: Offset(
-              0,
-              18 * (1 - value),
-            ),
+            offset: Offset(0, 18 * (1 - value)),
             child: child,
           ),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.only(
-          bottom: 12,
-        ),
+        padding: const EdgeInsets.only(bottom: 12),
         child: _buildExpenseItem(expense),
       ),
     );
@@ -549,7 +565,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
               ),
             ),
             Text(
-              '₱${amount.toStringAsFixed(0)}',
+              '₱${amount.toStringAsFixed(2)}',
               style: TextStyle(
                 color: color,
                 fontSize: 13,
@@ -583,6 +599,7 @@ class _ExpenseTrackerScreenState extends State<ExpenseTrackerScreen> {
         _removeExpense(expense);
       },
       dismissBackground: _buildDismissBackground,
+      onTap: () => _openExpenseDetails(expense),
     );
   }
 

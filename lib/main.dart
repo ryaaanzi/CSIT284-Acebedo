@@ -1,6 +1,7 @@
+
 import 'package:flutter/material.dart';
 
-import 'screens/expense_tracker_screen.dart';
+import 'screens/app_navigation_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -27,9 +28,8 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Expense Tracker',
       theme: _forestMode ? AppTheme.forestTheme : AppTheme.darkTheme,
-      home: ExpenseTrackerScreen(
+      home: AppNavigationScreen(
         forestMode: _forestMode,
         onThemeChanged: _toggleTheme,
       ),
