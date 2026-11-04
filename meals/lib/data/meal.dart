@@ -1,43 +1,43 @@
-enum Complexity {
-  simple,
-  challenging,
-  hard,
-}
-
-enum Affordability {
-  affordable,
-  pricey,
-  luxurious,
-}
-
-class Meal {
-  const Meal({
-    required this.id,
-    required this.categories,
-    required this.title,
-    required this.imageUrl,
-    required this.ingredients,
-    required this.steps,
-    required this.duration,
-    required this.complexity,
-    required this.affordability,
-    required this.isGlutenFree,
-    required this.isLactoseFree,
-    required this.isVegan,
-    required this.isVegetarian,
-  });
-
-  final String id;
-  final List<String> categories;
+import 'package:flutter/material.dart';
+import 'package:meals/data/meal.dart';
+import 'package:meals/models/meal.dart';
+import 'package:meals/widgets/meal_item.dart';
+ 
+class MealsScreen extends StatelessWidget {
+  const MealsScreen({super.key, required this.title, required this.meals});
+ 
   final String title;
-  final String imageUrl;
-  final List<String> ingredients;
-  final List<String> steps;
-  final int duration;
-  final Complexity complexity;
-  final Affordability affordability;
-  final bool isGlutenFree;
-  final bool isLactoseFree;
-  final bool isVegan;
-  final bool isVegetarian;
+  final List<Meal> meals;
+ 
+  @override
+  Widget build(BuildContext context) {
+    Widget content = ListView.builder(
+      itemCount: meals.length,
+      itemBuilder: (ctx, index) => MealItem(meal: meals[index]),
+    );
+    if (meals.isEmpty) {
+      content = Center(
+        child: Column(
+          children: [
+            Text('Uh oh ... nothing here!',
+            style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16,),
+            Text('Try selecting a different category',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+ 
+    return Scaffold(
+      appBar: AppBar(title: Text(title),),
+      body: content,
+    );
+  }
 }
